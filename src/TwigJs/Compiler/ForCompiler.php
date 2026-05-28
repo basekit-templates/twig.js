@@ -93,7 +93,7 @@ class ForCompiler implements TypeCompilerInterface
             ->write(sprintf('var %s = %s;', $loopName, json_encode($loopData, JSON_THROW_ON_ERROR)))
             ->write("\n");
 
-        if (false === $node->getAttribute('ifexpr')) {
+        if (!$node->hasAttribute('ifexpr') || false === $node->getAttribute('ifexpr')) {
             $compiler
                 ->write("if (twig.countable($seqName)) {\n")
                 ->indent()
@@ -111,7 +111,7 @@ class ForCompiler implements TypeCompilerInterface
         $loop = $ref->getValue($node);
         $loop->setAttribute('else', $node->hasNode('else') && null !== $node->getNode('else'));
         $loop->setAttribute('with_loop', $node->getAttribute('with_loop'));
-        $loop->setAttribute('ifexpr', $node->getAttribute('ifexpr'));
+        $loop->setAttribute('ifexpr', $node->hasAttribute('ifexpr') && $node->getAttribute('ifexpr'));
 
         $compiler
             ->write("twig.forEach($seqName, function($valueName, $keyName) {\n")

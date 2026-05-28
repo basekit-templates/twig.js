@@ -37,8 +37,7 @@ class TwigJsTokenParser extends AbstractTokenParser
                 sprintf(
                     'Unexpected token "%s" of value "%s"',
                     Token::typeToEnglish(
-                        $token->getType(),
-                        $token->getLine()
+                        $token->getType()
                     ),
                     $token->getValue()
                 ),

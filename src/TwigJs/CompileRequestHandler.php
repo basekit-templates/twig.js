@@ -19,6 +19,7 @@
 namespace TwigJs;
 
 use Twig\Environment;
+use Twig\Source;
 
 class CompileRequestHandler
 {
@@ -40,6 +41,10 @@ class CompileRequestHandler
             $source = $this->env->getLoader()->getSourceContext($request->getName());
         }
 
-        return $this->env->compileSource($source, $request->getName());
+        if (!$source instanceof Source) {
+            $source = new Source($source, $request->getName());
+        }
+
+        return $this->env->compileSource($source);
     }
 }

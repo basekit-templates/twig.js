@@ -31,7 +31,7 @@ class ConstantCompiler implements TypeCompilerInterface
             new TestExpression(
                 $node->getNode('node'),
                 $node->getAttribute('name'),
-                $node->getNode('arguments'),
+                $node->hasNode('arguments') ? $node->getNode('arguments') : null,
                 $node->getTemplateLine()
             )
         );

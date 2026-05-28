@@ -44,7 +44,7 @@ class FilterCompiler implements TypeCompilerInterface
         }
 
         $name = $node->getNode('filter')->getAttribute('value');
-        if (false === $filter = $compiler->getEnvironment()->getFilter($name)) {
+        if (null === $filter = $compiler->getEnvironment()->getFilter($name)) {
             throw new SyntaxError(sprintf('The filter "%s" does not exist', $name), $node->getTemplateLine());
         }
 

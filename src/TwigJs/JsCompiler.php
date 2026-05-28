@@ -65,6 +65,8 @@ use TwigJs\Compiler\Expression\NullCoalesceCompiler;
 use TwigJs\Compiler\Expression\ParentCompiler;
 use TwigJs\Compiler\Expression\TempNameCompiler;
 use TwigJs\Compiler\Expression\TestCompiler;
+use TwigJs\Compiler\Expression\Test\SameasCompiler as ExpressionTestSameasCompiler;
+use TwigJs\Compiler\Expression\Test\TrueTestCompiler;
 use TwigJs\Compiler\Expression\Unary\NegCompiler;
 use TwigJs\Compiler\Expression\Unary\NotCompiler;
 use TwigJs\Compiler\Expression\Unary\PosCompiler;
@@ -80,7 +82,6 @@ use TwigJs\Compiler\NodeCompiler;
 use TwigJs\Compiler\PrintCompiler;
 use TwigJs\Compiler\SetCompiler;
 use TwigJs\Compiler\SetTempCompiler;
-use TwigJs\Compiler\SpacelessCompiler;
 use TwigJs\Compiler\Test\DefinedCompiler;
 use TwigJs\Compiler\Test\DivisibleByCompiler;
 use TwigJs\Compiler\Test\EmptyCompiler;
@@ -91,6 +92,8 @@ use TwigJs\Compiler\Test\OddCompiler;
 use TwigJs\Compiler\Test\SameAsCompiler;
 use TwigJs\Compiler\TextCompiler;
 use Twig\Node\Node;
+use Twig\Node\Nodes;
+use Twig\Node\EmptyNode;
 use Twig\Node\BodyNode;
 use Twig\Node\ModuleNode;
 use Twig\Node\BlockNode;
@@ -101,7 +104,6 @@ use Twig\Node\ForNode;
 use Twig\Node\ForLoopNode;
 use Twig\Node\SetNode;
 use Twig\Node\IncludeNode;
-use Twig\Node\SpacelessNode;
 use Twig\Node\BlockReferenceNode;
 use Twig\Node\AutoEscapeNode;
 use Twig\Node\ImportNode;
@@ -153,6 +155,10 @@ use Twig\Node\Expression\Test\EvenTest;
 use Twig\Node\Expression\Test\NullTest;
 use Twig\Node\Expression\Test\OddTest;
 use Twig\Node\Expression\Test\SameasTest;
+use Twig\Node\Expression\Test\TrueTest;
+use Twig\Node\Expression\Variable\ContextVariable;
+use Twig\Node\Expression\Variable\LocalVariable;
+use Twig\Node\Expression\Variable\AssignContextVariable;
 use Twig\Node\Expression\NullCoalesceExpression;
 
 class JsCompiler extends Compiler
@@ -187,6 +193,8 @@ class JsCompiler extends Compiler
 
         $this->typeCompilers = [
             Node::class => new NodeCompiler(),
+            Nodes::class => new NodeCompiler(),
+            EmptyNode::class => new NodeCompiler(),
             BodyNode::class => new BodyCompiler(),
             ModuleNode::class => new ModuleCompiler\GoogleCompiler(),
             BlockNode::class => new BlockCompiler(),
@@ -197,7 +205,6 @@ class JsCompiler extends Compiler
             ForLoopNode::class => new ForLoopCompiler(),
             SetNode::class => new SetCompiler(),
             IncludeNode::class => new IncludeCompiler(),
-            SpacelessNode::class => new SpacelessCompiler(),
             BlockReferenceNode::class => new BlockReferenceCompiler(),
             AutoEscapeNode::class => new AutoEscapeCompiler(),
             ImportNode::class => new ImportCompiler(),
@@ -206,14 +213,18 @@ class JsCompiler extends Compiler
 
             InlinePrint::class => new InlinePrintCompiler(),
             TempNameExpression::class => new TempNameCompiler(),
+            LocalVariable::class => new TempNameCompiler(),
             ConditionalExpression::class => new ConditionalCompiler(),
             ArrayExpression::class => new ArrayCompiler(),
             FunctionExpression::class => new FunctionCompiler(),
             ParentExpression::class         => new ParentCompiler(),
             BlockReferenceExpression::class => new ExpressionBlockReferenceCompiler(),
             AssignNameExpression::class     => new AssignNameCompiler(),
+            AssignContextVariable::class    => new AssignNameCompiler(),
             TestExpression::class           => new TestCompiler(),
+            TrueTest::class                 => new TrueTestCompiler(),
             NameExpression::class           => new NameCompiler(),
+            ContextVariable::class          => new NameCompiler(),
             FilterExpression::class         => new FilterCompiler(),
             DefaultFilter::class            => new DefaultFilterCompiler(),
             ConstantExpression::class       => new ConstantCompiler(),
@@ -254,7 +265,7 @@ class JsCompiler extends Compiler
             EvenTest::class => new EvenCompiler(),
             NullTest::class => new NullCompiler(),
             OddTest::class => new OddCompiler(),
-            SameasTest::class => new SameasCompiler()
+            SameasTest::class => new ExpressionTestSameasCompiler()
         ];
 
         $this->testCompilers = [

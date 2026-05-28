@@ -59,7 +59,7 @@ class TestCompiler implements TypeCompilerInterface
             ->subcompile($subNode)
         ;
 
-        if (null !== $node->getNode('arguments')) {
+        if ($node->hasNode('arguments')) {
             $compiler->raw(', ');
 
             $max = count($node->getNode('arguments')) - 1;
