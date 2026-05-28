@@ -14,8 +14,7 @@ class TwigJsTokenParser extends AbstractTokenParser
         $node = new TwigJsNode(
             array(),
             array(),
-            $token->getLine(),
-            $this->getTag()
+            $token->getLine()
         );
 
         $stream = $this->parser->getStream();

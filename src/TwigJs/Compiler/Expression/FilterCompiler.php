@@ -43,7 +43,7 @@ class FilterCompiler implements TypeCompilerInterface
             );
         }
 
-        $name = $node->getNode('filter')->getAttribute('value');
+        $name = $node->getAttribute('name');
         if (null === $filter = $compiler->getEnvironment()->getFilter($name)) {
             throw new SyntaxError(sprintf('The filter "%s" does not exist', $name), $node->getTemplateLine());
         }

@@ -3,7 +3,6 @@
 namespace TwigJs\Compiler\Expression\Test;
 
 use Twig\Node\Expression\Test\DefinedTest;
-use Twig\Node\Expression\TestExpression;
 use Twig\Node\Node;
 use TwigJs\JsCompiler;
 use TwigJs\TypeCompilerInterface;
@@ -27,13 +26,6 @@ class DefinedCompiler implements TypeCompilerInterface
             );
         }
 
-        $compiler->subcompile(
-            new TestExpression(
-                $node->getNode('node'),
-                $node->getAttribute('name'),
-                $node->hasNode('arguments') ? $node->getNode('arguments') : null,
-                $node->getTemplateLine()
-            )
-        );
+        $compiler->subcompile($node->getNode('node'));
     }
 }

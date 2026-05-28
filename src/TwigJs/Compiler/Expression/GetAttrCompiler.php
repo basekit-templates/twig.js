@@ -47,7 +47,7 @@ class GetAttrCompiler implements TypeCompilerInterface
 
         $compiler->raw('twig.attr(');
 
-        if ($node->getAttribute('is_defined_test') && $compiler->getEnvironment()->isStrictVariables()) {
+        if ($node->isDefinedTestEnabled() && $compiler->getEnvironment()->isStrictVariables()) {
             $compiler->subcompile(new FilterExpression(
                 $node->getNode('node'),
                 new ConstantExpression('default', $node->getTemplateLine()),
@@ -65,7 +65,7 @@ class GetAttrCompiler implements TypeCompilerInterface
 
         $defaultArguments = 0 === ($node->hasNode('arguments') ? count($node->getNode('arguments')) : 0);
         $defaultAccess = Template::ANY_CALL === $node->getAttribute('type');
-        $defaultTest = false === $node->getAttribute('is_defined_test');
+        $defaultTest = !$node->isDefinedTestEnabled();
 
         if (!$defaultArguments) {
             $compiler->raw(', ')->subcompile($node->getNode('arguments'));
@@ -81,7 +81,7 @@ class GetAttrCompiler implements TypeCompilerInterface
         }
 
         if (!$defaultTest) {
-            $compiler->raw(', '.($node->getAttribute('is_defined_test') ? 'true' : 'false'));
+            $compiler->raw(', '.($node->isDefinedTestEnabled() ? 'true' : 'false'));
         }
 
         $compiler->raw(')');
