@@ -4,6 +4,8 @@ namespace TwigJs\Tests;
 
 use Datto\JsonRpc\Http\Client;
 use Datto\JsonRpc\Responses\ErrorResponse;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -72,6 +74,8 @@ class FullIntegrationTest extends TestCase
      * @test
      * @dataProvider getIntegrationTests
      */
+    #[Test]
+    #[DataProvider('getIntegrationTests')]
     public function integrationTest($file, $message, $data, $templates, $exception, $expectedOutput)
     {
         $javascript = '';
@@ -89,18 +93,18 @@ class FullIntegrationTest extends TestCase
         self::assertEquals($expectedOutput, $renderedOutput);
     }
 
-    public function getIntegrationTests()
+    public static function getIntegrationTests()
     {
         $directory = new RecursiveDirectoryIterator(__DIR__ . '/Fixture/integration');
         $iterator = new RecursiveIteratorIterator($directory);
         $regex = new RegexIterator($iterator, '/\.test/', RecursiveRegexIterator::GET_MATCH);
 
         foreach (array_keys(iterator_to_array($regex)) as $file) {
-            yield $file => $this->loadTest($file);
+            yield $file => self::loadTest($file);
         }
     }
 
-    public function loadTest($file)
+    public static function loadTest($file)
     {
         $fp = fopen($file, "rb");
 
