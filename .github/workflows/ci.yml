@@ -69,6 +69,9 @@ jobs:
           npm install
           echo "::endgroup::"
 
+      - name: Build twig.dev.js
+        run: npm run build
+
       - name: Start JSON-RPC
         shell: bash
         run: "node tests-js/json-rpc.js &"
