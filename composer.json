@@ -13,7 +13,7 @@
     "require": {
         "php": ">=7.3",
         "ext-json": "*",
-        "twig/twig": "^2.11"
+        "twig/twig": "^3.7.0"
     },
     "require-dev": {
         "datto/json-rpc-http": "^5.0",
