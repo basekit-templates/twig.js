@@ -32,11 +32,20 @@ class FullIntegrationTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
+        $socket = @fsockopen('0.0.0.0', 7070, $errno, $errstr, 1);
+        if (!$socket) {
+            self::markTestSkipped('JSON-RPC server not available at 0.0.0.0:7070 - skipping integration tests');
+            return;
+        }
+        fclose($socket);
         self::$rpc = new Client('http://0.0.0.0:7070');
     }
 
     public static function tearDownAfterClass(): void
     {
+        if (self::$rpc === null) {
+            return;
+        }
         self::$rpc->query( 'exit', [], $response);
         self::$rpc->send();
     }

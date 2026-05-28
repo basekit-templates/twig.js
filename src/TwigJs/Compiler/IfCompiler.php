@@ -27,7 +27,7 @@ class IfCompiler implements TypeCompilerInterface
 {
     public function getType()
     {
-        return 'Twig_Node_If';
+        return IfNode::class;
     }
 
     public function compile(JsCompiler $compiler, Node $node)

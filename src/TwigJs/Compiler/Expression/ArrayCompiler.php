@@ -19,6 +19,7 @@
 namespace TwigJs\Compiler\Expression;
 
 use Twig\Node\Expression\ArrayExpression;
+use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Node;
 use TwigJs\JsCompiler;
 use TwigJs\TypeCompilerInterface;
@@ -89,7 +90,7 @@ class ArrayCompiler implements TypeCompilerInterface
     private function hasDynamicKeys(array $pairs)
     {
         foreach ($pairs as $pair) {
-            if (!$pair['key'] instanceof \Twig_Node_Expression_Constant) {
+            if (!$pair['key'] instanceof ConstantExpression) {
                 return true;
             }
         }
@@ -100,7 +101,7 @@ class ArrayCompiler implements TypeCompilerInterface
     private function isList(array $pairs)
     {
         for ($i=0,$c=count($pairs); $i<$c; $i++) {
-            if (!$pairs[$i]['key'] instanceof \Twig_Node_Expression_Constant) {
+            if (!$pairs[$i]['key'] instanceof ConstantExpression) {
                 return false;
             }
 
@@ -112,7 +113,7 @@ class ArrayCompiler implements TypeCompilerInterface
         return true;
     }
 
-    private function getKeyValuePairs(\Twig_Node $node)
+    private function getKeyValuePairs(Node $node)
     {
         $pairs = array();
 
