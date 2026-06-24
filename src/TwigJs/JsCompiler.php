@@ -37,6 +37,7 @@ use TwigJs\Compiler\Expression\Binary\BitwiseOrCompiler;
 use TwigJs\Compiler\Expression\Binary\BitwiseXorCompiler;
 use TwigJs\Compiler\Expression\Binary\ConcatCompiler;
 use TwigJs\Compiler\Expression\Binary\DivCompiler;
+use TwigJs\Compiler\Expression\Binary\ElvisBinaryCompiler;
 use TwigJs\Compiler\Expression\Binary\EqualCompiler;
 use TwigJs\Compiler\Expression\Binary\FloorDivCompiler;
 use TwigJs\Compiler\Expression\Binary\GreaterCompiler;
@@ -48,10 +49,12 @@ use TwigJs\Compiler\Expression\Binary\ModCompiler;
 use TwigJs\Compiler\Expression\Binary\MulCompiler;
 use TwigJs\Compiler\Expression\Binary\NotEqualCompiler;
 use TwigJs\Compiler\Expression\Binary\NotInCompiler;
+use TwigJs\Compiler\Expression\Binary\NullCoalesceBinaryCompiler;
 use TwigJs\Compiler\Expression\Binary\OrCompiler;
 use TwigJs\Compiler\Expression\Binary\PowerCompiler;
 use TwigJs\Compiler\Expression\Binary\RangeCompiler;
 use TwigJs\Compiler\Expression\Binary\SubCompiler;
+use TwigJs\Compiler\Expression\Ternary\ConditionalTernaryCompiler;
 use TwigJs\Compiler\Expression\BlockReferenceCompiler as ExpressionBlockReferenceCompiler;
 use TwigJs\Compiler\Expression\ConditionalCompiler;
 use TwigJs\Compiler\Expression\ConstantCompiler;
@@ -160,6 +163,9 @@ use Twig\Node\Expression\Variable\ContextVariable;
 use Twig\Node\Expression\Variable\LocalVariable;
 use Twig\Node\Expression\Variable\AssignContextVariable;
 use Twig\Node\Expression\NullCoalesceExpression;
+use Twig\Node\Expression\Binary\ElvisBinary;
+use Twig\Node\Expression\Binary\NullCoalesceBinary;
+use Twig\Node\Expression\Ternary\ConditionalTernary;
 
 class JsCompiler extends Compiler
 {
@@ -215,6 +221,7 @@ class JsCompiler extends Compiler
             TempNameExpression::class => new TempNameCompiler(),
             LocalVariable::class => new TempNameCompiler(),
             ConditionalExpression::class => new ConditionalCompiler(),
+            ConditionalTernary::class => new ConditionalTernaryCompiler(),
             ArrayExpression::class => new ArrayCompiler(),
             FunctionExpression::class => new FunctionCompiler(),
             ParentExpression::class         => new ParentCompiler(),
@@ -231,6 +238,8 @@ class JsCompiler extends Compiler
             GetAttrExpression::class        => new GetAttrCompiler(),
             MethodCallExpression::class     => new MethodCallCompiler(),
             NullCoalesceExpression::class   => new NullCoalesceCompiler(),
+            ElvisBinary::class              => new ElvisBinaryCompiler(),
+            NullCoalesceBinary::class       => new NullCoalesceBinaryCompiler(),
 
             AddBinary::class => new AddCompiler(),
             AndBinary::class => new AndCompiler(),
