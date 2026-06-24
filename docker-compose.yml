@@ -4,3 +4,20 @@ services:
     volumes:
       - .:/var/basekit
     working_dir: /var/basekit
+    depends_on:
+      node:
+        condition: service_healthy
+    environment:
+      JSON_RPC_HOST: node
+  node:
+    image: "node:lts-alpine"
+    volumes:
+      - .:/var/basekit
+    working_dir: /var/basekit
+    command: sh -c "npm install && node tests-js/json-rpc.js"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('net').createConnection(7070).on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 5s

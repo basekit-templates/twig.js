@@ -32,13 +32,14 @@ class FullIntegrationTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        $socket = @fsockopen('0.0.0.0', 7070, $errno, $errstr, 1);
+        $host = getenv('JSON_RPC_HOST') ?: '0.0.0.0';
+        $socket = @fsockopen($host, 7070, $errno, $errstr, 1);
         if (!$socket) {
-            self::markTestSkipped('JSON-RPC server not available at 0.0.0.0:7070 - skipping integration tests');
+            self::markTestSkipped('JSON-RPC server not available at ' . $host . ':7070 - skipping integration tests');
             return;
         }
         fclose($socket);
-        self::$rpc = new Client('http://0.0.0.0:7070');
+        self::$rpc = new Client('http://' . $host . ':7070');
     }
 
     public static function tearDownAfterClass(): void
