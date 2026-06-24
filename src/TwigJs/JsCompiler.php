@@ -62,6 +62,9 @@ use TwigJs\Compiler\Expression\DefaultFilterCompiler;
 use TwigJs\Compiler\Expression\Filter\RawCompiler as FilterRawCompiler;
 use TwigJs\Compiler\Expression\FilterCompiler;
 use TwigJs\Compiler\Expression\FunctionCompiler;
+use TwigJs\Compiler\Expression\MacroReferenceCompiler;
+use TwigJs\Compiler\Expression\Variable\TemplateVariableCompiler;
+use TwigJs\Compiler\Expression\Variable\AssignTemplateVariableCompiler;
 use TwigJs\Compiler\Expression\GetAttrCompiler;
 use TwigJs\Compiler\Expression\MethodCallCompiler;
 use TwigJs\Compiler\Expression\NameCompiler;
@@ -164,6 +167,9 @@ use Twig\Node\Expression\Test\TrueTest;
 use Twig\Node\Expression\Variable\ContextVariable;
 use Twig\Node\Expression\Variable\LocalVariable;
 use Twig\Node\Expression\Variable\AssignContextVariable;
+use Twig\Node\Expression\Variable\TemplateVariable;
+use Twig\Node\Expression\Variable\AssignTemplateVariable;
+use Twig\Node\Expression\MacroReferenceExpression;
 use Twig\Node\Expression\NullCoalesceExpression;
 use Twig\Node\Expression\Binary\ElvisBinary;
 use Twig\Node\Expression\Binary\NullCoalesceBinary;
@@ -222,6 +228,9 @@ class JsCompiler extends Compiler
             InlinePrint::class => new InlinePrintCompiler(),
             TempNameExpression::class => new TempNameCompiler(),
             LocalVariable::class => new TempNameCompiler(),
+            TemplateVariable::class => new TemplateVariableCompiler(),
+            AssignTemplateVariable::class => new AssignTemplateVariableCompiler(),
+            MacroReferenceExpression::class => new MacroReferenceCompiler(),
             ConditionalExpression::class => new ConditionalCompiler(),
             ConditionalTernary::class => new ConditionalTernaryCompiler(),
             ArrayExpression::class => new ArrayCompiler(),
