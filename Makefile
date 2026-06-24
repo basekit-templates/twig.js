@@ -34,8 +34,11 @@ phpcs: vendor
 
 .PHONY: build clean test phpcs
 
+composer_install: ## Run composer update
+	docker run -e COMPOSER_HOME=$(HOME)/.composer -u $(shell id -u $$USER) -v $(HOME):$(HOME) -v $(CURDIR):$(BASE_PATH) -w $(BASE_PATH) --rm $(PHP_IMAGE) php composer.phar install
+
 composer_update: ## Run composer update
-	docker run -e COMPOSER_HOME=$(HOME)/.composer -u $(shell id -u $$USER) -v $(HOME):$(HOME) -v $(CURDIR):$(BASE_PATH) -w $(BASE_PATH) --rm $(PHP_IMAGE) php composer.phar update $(PACKAGE) --ignore-platform-req=php+
+	docker run -e COMPOSER_HOME=$(HOME)/.composer -u $(shell id -u $$USER) -v $(HOME):$(HOME) -v $(CURDIR):$(BASE_PATH) -w $(BASE_PATH) --rm $(PHP_IMAGE) php composer.phar update $(PACKAGE)
 
 phpunit: ## Run phpunit tests. Use GREP to filter tests (e.g. make phpunit GREP=MyTest)
 	docker compose run --rm php php -d memory_limit=-1 -d xdebug.default_enable=false ./vendor/bin/phpunit
