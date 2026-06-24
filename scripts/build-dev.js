@@ -75,7 +75,7 @@ goog.string.StringBuffer = function(opt_a1) {
     if (opt_a1 != null) { this.append(opt_a1); }
 };
 goog.string.StringBuffer.prototype.append = function(a1) {
-    this.buffer_.push(a1 == null ? '' : String(a1));
+    this.buffer_.push(a1 === undefined ? '' : a1 === null ? 'null' : String(a1));
     return this;
 };
 goog.string.StringBuffer.prototype.toString = function() { return this.buffer_.join(''); };

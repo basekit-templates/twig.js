@@ -20,6 +20,7 @@ namespace TwigJs\Compiler\Expression;
 
 use Twig\Node\Expression\ArrayExpression;
 use Twig\Node\Expression\ConstantExpression;
+use Twig\Node\Expression\TempNameExpression;
 use Twig\Node\Node;
 use TwigJs\JsCompiler;
 use TwigJs\TypeCompilerInterface;
@@ -101,11 +102,14 @@ class ArrayCompiler implements TypeCompilerInterface
     private function isList(array $pairs)
     {
         for ($i=0,$c=count($pairs); $i<$c; $i++) {
-            if (!$pairs[$i]['key'] instanceof ConstantExpression) {
-                return false;
-            }
-
-            if ($pairs[$i]['key']->getAttribute('value') !== $i) {
+            $key = $pairs[$i]['key'];
+            if ($key instanceof ConstantExpression) {
+                if ($key->getAttribute('value') !== $i) {
+                    return false;
+                }
+            } elseif ($key instanceof TempNameExpression && $key->getAttribute('name') === $i) {
+                // LocalVariable (or TempNameExpression) with integer index equal to position - positional arg
+            } else {
                 return false;
             }
         }
