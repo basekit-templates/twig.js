@@ -59,6 +59,7 @@ use TwigJs\Compiler\Expression\BlockReferenceCompiler as ExpressionBlockReferenc
 use TwigJs\Compiler\Expression\ConditionalCompiler;
 use TwigJs\Compiler\Expression\ConstantCompiler;
 use TwigJs\Compiler\Expression\DefaultFilterCompiler;
+use TwigJs\Compiler\Expression\Filter\RawCompiler as FilterRawCompiler;
 use TwigJs\Compiler\Expression\FilterCompiler;
 use TwigJs\Compiler\Expression\FunctionCompiler;
 use TwigJs\Compiler\Expression\GetAttrCompiler;
@@ -123,6 +124,7 @@ use Twig\Node\Expression\TestExpression;
 use Twig\Node\Expression\NameExpression;
 use Twig\Node\Expression\FilterExpression;
 use Twig\Node\Expression\Filter\DefaultFilter;
+use Twig\Node\Expression\Filter\RawFilter;
 use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Expression\GetAttrExpression;
 use Twig\Node\Expression\MethodCallExpression;
@@ -234,6 +236,7 @@ class JsCompiler extends Compiler
             ContextVariable::class          => new NameCompiler(),
             FilterExpression::class         => new FilterCompiler(),
             DefaultFilter::class            => new DefaultFilterCompiler(),
+            RawFilter::class                => new FilterRawCompiler(),
             ConstantExpression::class       => new ConstantCompiler(),
             GetAttrExpression::class        => new GetAttrCompiler(),
             MethodCallExpression::class     => new MethodCallCompiler(),
