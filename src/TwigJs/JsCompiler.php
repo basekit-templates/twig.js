@@ -27,6 +27,7 @@ use TwigJs\Compiler\AutoEscapeCompiler;
 use TwigJs\Compiler\BlockCompiler;
 use TwigJs\Compiler\BlockReferenceCompiler;
 use TwigJs\Compiler\BodyCompiler;
+use TwigJs\Compiler\CaptureNodeCompiler;
 use TwigJs\Compiler\DoCompiler;
 use TwigJs\Compiler\Expression\ArrayCompiler;
 use TwigJs\Compiler\Expression\AssignNameCompiler;
@@ -109,6 +110,7 @@ use Twig\Node\IfNode;
 use Twig\Node\PrintNode;
 use Twig\Node\ForNode;
 use Twig\Node\ForLoopNode;
+use Twig\Node\CaptureNode;
 use Twig\Node\SetNode;
 use Twig\Node\IncludeNode;
 use Twig\Node\BlockReferenceNode;
@@ -218,6 +220,7 @@ class JsCompiler extends Compiler
             ForNode::class => new ForCompiler(),
             ForLoopNode::class => new ForLoopCompiler(),
             SetNode::class => new SetCompiler(),
+            CaptureNode::class => new CaptureNodeCompiler(),
             IncludeNode::class => new IncludeCompiler(),
             BlockReferenceNode::class => new BlockReferenceCompiler(),
             AutoEscapeNode::class => new AutoEscapeCompiler(),
