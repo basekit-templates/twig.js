@@ -103,6 +103,7 @@ use Twig\Node\Node;
 use Twig\Node\Nodes;
 use Twig\Node\EmptyNode;
 use Twig\Node\BodyNode;
+use Twig\Node\ConfigNode;
 use Twig\Node\ModuleNode;
 use Twig\Node\BlockNode;
 use Twig\Node\TextNode;
@@ -289,7 +290,8 @@ class JsCompiler extends Compiler
             EvenTest::class => new EvenCompiler(),
             NullTest::class => new NullCompiler(),
             OddTest::class => new OddCompiler(),
-            SameasTest::class => new ExpressionTestSameasCompiler()
+            SameasTest::class => new ExpressionTestSameasCompiler(),
+            'Twig\Node\ConfigNode' => new NodeCompiler(),
         ];
 
         $this->testCompilers = [
