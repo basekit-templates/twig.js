@@ -7,6 +7,7 @@
     "sinon": "^9.2.3"
   },
   "scripts": {
+    "build": "node scripts/build-dev.js",
     "json-rpc": "node ./tests-js/json-rpc.js &",
     "test": "mocha --require tests-js/bootstrap.js tests-js/twig/**.js"
   }

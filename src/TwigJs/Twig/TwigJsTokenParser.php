@@ -14,8 +14,7 @@ class TwigJsTokenParser extends AbstractTokenParser
         $node = new TwigJsNode(
             array(),
             array(),
-            $token->getLine(),
-            $this->getTag()
+            $token->getLine()
         );
 
         $stream = $this->parser->getStream();
@@ -37,8 +36,7 @@ class TwigJsTokenParser extends AbstractTokenParser
                 sprintf(
                     'Unexpected token "%s" of value "%s"',
                     Token::typeToEnglish(
-                        $token->getType(),
-                        $token->getLine()
+                        $token->getType()
                     ),
                     $token->getValue()
                 ),

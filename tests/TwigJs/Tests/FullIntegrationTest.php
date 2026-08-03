@@ -2,8 +2,8 @@
 
 namespace TwigJs\Tests;
 
-use Datto\JsonRpc\Http\Client;
-use Datto\JsonRpc\Responses\ErrorResponse;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -19,8 +19,8 @@ use TwigJs\JsCompiler;
 
 class FullIntegrationTest extends TestCase
 {
-    /** @var Client */
-    private static $rpc;
+    /** @var string|null */
+    private static $rpcHost = null;
 
     /** @var ArrayLoader */
     private $arrayLoader;
@@ -30,26 +30,80 @@ class FullIntegrationTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        self::$rpc = new Client('http://0.0.0.0:7070');
+        if (!function_exists('curl_init')) {
+            self::markTestSkipped('cURL extension is not available - skipping integration tests');
+            return;
+        }
+
+        $host = getenv('JSON_RPC_HOST') ?: '0.0.0.0';
+        $socket = @fsockopen($host, 7070, $errno, $errstr, 1);
+        if (!$socket) {
+            self::markTestSkipped('JSON-RPC server not available at ' . $host . ':7070 - skipping integration tests');
+            return;
+        }
+        fclose($socket);
+        self::$rpcHost = $host;
     }
 
     public static function tearDownAfterClass(): void
     {
-        self::$rpc->query( 'exit', [], $response);
-        self::$rpc->send();
+        if (self::$rpcHost === null) {
+            return;
+        }
+        try {
+            self::callRpc('exit', []);
+        } catch (\Exception $e) {
+            // Server may have already exited
+        }
+    }
+
+    /**
+     * Send a JSON-RPC 2.0 request over HTTP using cURL.
+     * cURL is used instead of file_get_contents so that tests work regardless
+     * of the allow_url_fopen php.ini setting.
+     *
+     * @param string $method
+     * @param array  $params
+     * @return mixed The value of the "result" field in the response.
+     * @throws \RuntimeException on transport or server-side error.
+     */
+    private static function callRpc(string $method, array $params)
+    {
+        $request = json_encode([
+            'jsonrpc' => '2.0',
+            'id'      => 1,
+            'method'  => $method,
+            'params'  => $params,
+        ]);
+
+        $ch = curl_init('http://' . self::$rpcHost . ':7070');
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $request,
+            CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 30,
+        ]);
+
+        $response = curl_exec($ch);
+        $error    = curl_error($ch);
+        curl_close($ch);
+
+        if ($response === false) {
+            throw new \RuntimeException('JSON-RPC call failed: ' . $error);
+        }
+
+        $decoded = json_decode($response, true);
+        if (isset($decoded['error'])) {
+            throw new \RuntimeException($decoded['error']['message'] ?? 'Unknown server error');
+        }
+
+        return $decoded['result'] ?? null;
     }
 
     private function renderTemplate($name, $javascript, $parameters)
     {
-        $output = '';
-        self::$rpc->query( 'render', [$name, $javascript, $parameters], $output);
-        self::$rpc->send();
-
-        if ($output instanceof ErrorResponse) {
-            throw new \ErrorException($output->getMessage());
-        }
-
-        return $output;
+        return self::callRpc('render', [$name, $javascript, $parameters]);
     }
 
     public function setUp(): void
@@ -72,6 +126,8 @@ class FullIntegrationTest extends TestCase
      * @test
      * @dataProvider getIntegrationTests
      */
+    #[Test]
+    #[DataProvider('getIntegrationTests')]
     public function integrationTest($file, $message, $data, $templates, $exception, $expectedOutput)
     {
         $javascript = '';
@@ -89,18 +145,18 @@ class FullIntegrationTest extends TestCase
         self::assertEquals($expectedOutput, $renderedOutput);
     }
 
-    public function getIntegrationTests()
+    public static function getIntegrationTests()
     {
         $directory = new RecursiveDirectoryIterator(__DIR__ . '/Fixture/integration');
         $iterator = new RecursiveIteratorIterator($directory);
         $regex = new RegexIterator($iterator, '/\.test/', RecursiveRegexIterator::GET_MATCH);
 
         foreach (array_keys(iterator_to_array($regex)) as $file) {
-            yield $file => $this->loadTest($file);
+            yield $file => self::loadTest($file);
         }
     }
 
-    public function loadTest($file)
+    public static function loadTest($file)
     {
         $fp = fopen($file, "rb");
 

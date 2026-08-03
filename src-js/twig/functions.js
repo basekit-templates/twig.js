@@ -51,11 +51,10 @@ twig.functions.min = function(value) {
 };
 
 /**
- * @param {twig.Environment} env
  * @param {goog.array.ArrayLike|Object} value
  * @return {goog.array.ArrayLike|Object|string|number}
  */
-twig.functions.random = function(env, value) {
+twig.functions.random = function(value) {
 	if (goog.isArray(value) || goog.isString(value)) {
 		var index = Math.floor(Math.random() * value.length);
 		return value[index];

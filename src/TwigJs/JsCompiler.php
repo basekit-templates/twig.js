@@ -27,6 +27,7 @@ use TwigJs\Compiler\AutoEscapeCompiler;
 use TwigJs\Compiler\BlockCompiler;
 use TwigJs\Compiler\BlockReferenceCompiler;
 use TwigJs\Compiler\BodyCompiler;
+use TwigJs\Compiler\CaptureNodeCompiler;
 use TwigJs\Compiler\DoCompiler;
 use TwigJs\Compiler\Expression\ArrayCompiler;
 use TwigJs\Compiler\Expression\AssignNameCompiler;
@@ -37,6 +38,7 @@ use TwigJs\Compiler\Expression\Binary\BitwiseOrCompiler;
 use TwigJs\Compiler\Expression\Binary\BitwiseXorCompiler;
 use TwigJs\Compiler\Expression\Binary\ConcatCompiler;
 use TwigJs\Compiler\Expression\Binary\DivCompiler;
+use TwigJs\Compiler\Expression\Binary\ElvisBinaryCompiler;
 use TwigJs\Compiler\Expression\Binary\EqualCompiler;
 use TwigJs\Compiler\Expression\Binary\FloorDivCompiler;
 use TwigJs\Compiler\Expression\Binary\GreaterCompiler;
@@ -48,16 +50,22 @@ use TwigJs\Compiler\Expression\Binary\ModCompiler;
 use TwigJs\Compiler\Expression\Binary\MulCompiler;
 use TwigJs\Compiler\Expression\Binary\NotEqualCompiler;
 use TwigJs\Compiler\Expression\Binary\NotInCompiler;
+use TwigJs\Compiler\Expression\Binary\NullCoalesceBinaryCompiler;
 use TwigJs\Compiler\Expression\Binary\OrCompiler;
 use TwigJs\Compiler\Expression\Binary\PowerCompiler;
 use TwigJs\Compiler\Expression\Binary\RangeCompiler;
 use TwigJs\Compiler\Expression\Binary\SubCompiler;
+use TwigJs\Compiler\Expression\Ternary\ConditionalTernaryCompiler;
 use TwigJs\Compiler\Expression\BlockReferenceCompiler as ExpressionBlockReferenceCompiler;
 use TwigJs\Compiler\Expression\ConditionalCompiler;
 use TwigJs\Compiler\Expression\ConstantCompiler;
 use TwigJs\Compiler\Expression\DefaultFilterCompiler;
+use TwigJs\Compiler\Expression\Filter\RawCompiler as FilterRawCompiler;
 use TwigJs\Compiler\Expression\FilterCompiler;
 use TwigJs\Compiler\Expression\FunctionCompiler;
+use TwigJs\Compiler\Expression\MacroReferenceCompiler;
+use TwigJs\Compiler\Expression\Variable\TemplateVariableCompiler;
+use TwigJs\Compiler\Expression\Variable\AssignTemplateVariableCompiler;
 use TwigJs\Compiler\Expression\GetAttrCompiler;
 use TwigJs\Compiler\Expression\MethodCallCompiler;
 use TwigJs\Compiler\Expression\NameCompiler;
@@ -65,6 +73,8 @@ use TwigJs\Compiler\Expression\NullCoalesceCompiler;
 use TwigJs\Compiler\Expression\ParentCompiler;
 use TwigJs\Compiler\Expression\TempNameCompiler;
 use TwigJs\Compiler\Expression\TestCompiler;
+use TwigJs\Compiler\Expression\Test\SameasCompiler as ExpressionTestSameasCompiler;
+use TwigJs\Compiler\Expression\Test\TrueTestCompiler;
 use TwigJs\Compiler\Expression\Unary\NegCompiler;
 use TwigJs\Compiler\Expression\Unary\NotCompiler;
 use TwigJs\Compiler\Expression\Unary\PosCompiler;
@@ -80,7 +90,6 @@ use TwigJs\Compiler\NodeCompiler;
 use TwigJs\Compiler\PrintCompiler;
 use TwigJs\Compiler\SetCompiler;
 use TwigJs\Compiler\SetTempCompiler;
-use TwigJs\Compiler\SpacelessCompiler;
 use TwigJs\Compiler\Test\DefinedCompiler;
 use TwigJs\Compiler\Test\DivisibleByCompiler;
 use TwigJs\Compiler\Test\EmptyCompiler;
@@ -91,7 +100,10 @@ use TwigJs\Compiler\Test\OddCompiler;
 use TwigJs\Compiler\Test\SameAsCompiler;
 use TwigJs\Compiler\TextCompiler;
 use Twig\Node\Node;
+use Twig\Node\Nodes;
+use Twig\Node\EmptyNode;
 use Twig\Node\BodyNode;
+use Twig\Node\ConfigNode;
 use Twig\Node\ModuleNode;
 use Twig\Node\BlockNode;
 use Twig\Node\TextNode;
@@ -99,9 +111,9 @@ use Twig\Node\IfNode;
 use Twig\Node\PrintNode;
 use Twig\Node\ForNode;
 use Twig\Node\ForLoopNode;
+use Twig\Node\CaptureNode;
 use Twig\Node\SetNode;
 use Twig\Node\IncludeNode;
-use Twig\Node\SpacelessNode;
 use Twig\Node\BlockReferenceNode;
 use Twig\Node\AutoEscapeNode;
 use Twig\Node\ImportNode;
@@ -118,6 +130,7 @@ use Twig\Node\Expression\TestExpression;
 use Twig\Node\Expression\NameExpression;
 use Twig\Node\Expression\FilterExpression;
 use Twig\Node\Expression\Filter\DefaultFilter;
+use Twig\Node\Expression\Filter\RawFilter;
 use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Expression\GetAttrExpression;
 use Twig\Node\Expression\MethodCallExpression;
@@ -153,7 +166,17 @@ use Twig\Node\Expression\Test\EvenTest;
 use Twig\Node\Expression\Test\NullTest;
 use Twig\Node\Expression\Test\OddTest;
 use Twig\Node\Expression\Test\SameasTest;
+use Twig\Node\Expression\Test\TrueTest;
+use Twig\Node\Expression\Variable\ContextVariable;
+use Twig\Node\Expression\Variable\LocalVariable;
+use Twig\Node\Expression\Variable\AssignContextVariable;
+use Twig\Node\Expression\Variable\TemplateVariable;
+use Twig\Node\Expression\Variable\AssignTemplateVariable;
+use Twig\Node\Expression\MacroReferenceExpression;
 use Twig\Node\Expression\NullCoalesceExpression;
+use Twig\Node\Expression\Binary\ElvisBinary;
+use Twig\Node\Expression\Binary\NullCoalesceBinary;
+use Twig\Node\Expression\Ternary\ConditionalTernary;
 
 class JsCompiler extends Compiler
 {
@@ -187,6 +210,8 @@ class JsCompiler extends Compiler
 
         $this->typeCompilers = [
             Node::class => new NodeCompiler(),
+            Nodes::class => new NodeCompiler(),
+            EmptyNode::class => new NodeCompiler(),
             BodyNode::class => new BodyCompiler(),
             ModuleNode::class => new ModuleCompiler\GoogleCompiler(),
             BlockNode::class => new BlockCompiler(),
@@ -196,8 +221,8 @@ class JsCompiler extends Compiler
             ForNode::class => new ForCompiler(),
             ForLoopNode::class => new ForLoopCompiler(),
             SetNode::class => new SetCompiler(),
+            CaptureNode::class => new CaptureNodeCompiler(),
             IncludeNode::class => new IncludeCompiler(),
-            SpacelessNode::class => new SpacelessCompiler(),
             BlockReferenceNode::class => new BlockReferenceCompiler(),
             AutoEscapeNode::class => new AutoEscapeCompiler(),
             ImportNode::class => new ImportCompiler(),
@@ -206,20 +231,31 @@ class JsCompiler extends Compiler
 
             InlinePrint::class => new InlinePrintCompiler(),
             TempNameExpression::class => new TempNameCompiler(),
+            LocalVariable::class => new TempNameCompiler(),
+            TemplateVariable::class => new TemplateVariableCompiler(),
+            AssignTemplateVariable::class => new AssignTemplateVariableCompiler(),
+            MacroReferenceExpression::class => new MacroReferenceCompiler(),
             ConditionalExpression::class => new ConditionalCompiler(),
+            ConditionalTernary::class => new ConditionalTernaryCompiler(),
             ArrayExpression::class => new ArrayCompiler(),
             FunctionExpression::class => new FunctionCompiler(),
             ParentExpression::class         => new ParentCompiler(),
             BlockReferenceExpression::class => new ExpressionBlockReferenceCompiler(),
             AssignNameExpression::class     => new AssignNameCompiler(),
+            AssignContextVariable::class    => new AssignNameCompiler(),
             TestExpression::class           => new TestCompiler(),
+            TrueTest::class                 => new TrueTestCompiler(),
             NameExpression::class           => new NameCompiler(),
+            ContextVariable::class          => new NameCompiler(),
             FilterExpression::class         => new FilterCompiler(),
             DefaultFilter::class            => new DefaultFilterCompiler(),
+            RawFilter::class                => new FilterRawCompiler(),
             ConstantExpression::class       => new ConstantCompiler(),
             GetAttrExpression::class        => new GetAttrCompiler(),
             MethodCallExpression::class     => new MethodCallCompiler(),
             NullCoalesceExpression::class   => new NullCoalesceCompiler(),
+            ElvisBinary::class              => new ElvisBinaryCompiler(),
+            NullCoalesceBinary::class       => new NullCoalesceBinaryCompiler(),
 
             AddBinary::class => new AddCompiler(),
             AndBinary::class => new AndCompiler(),
@@ -254,7 +290,8 @@ class JsCompiler extends Compiler
             EvenTest::class => new EvenCompiler(),
             NullTest::class => new NullCompiler(),
             OddTest::class => new OddCompiler(),
-            SameasTest::class => new SameasCompiler()
+            SameasTest::class => new ExpressionTestSameasCompiler(),
+            'Twig\Node\ConfigNode' => new NodeCompiler(),
         ];
 
         $this->testCompilers = [

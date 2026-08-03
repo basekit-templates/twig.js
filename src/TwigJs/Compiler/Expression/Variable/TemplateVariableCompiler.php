@@ -16,45 +16,42 @@
  * limitations under the License.
  */
 
-namespace TwigJs\Compiler;
+namespace TwigJs\Compiler\Expression\Variable;
 
+use Twig\Node\Expression\Variable\TemplateVariable;
 use Twig\Node\Node;
-use Twig\Node\SpacelessNode;
 use TwigJs\JsCompiler;
 use TwigJs\TypeCompilerInterface;
 
-class SpacelessCompiler implements TypeCompilerInterface
+class TemplateVariableCompiler implements TypeCompilerInterface
 {
-    private $count = 0;
-
     public function getType()
     {
-        return SpacelessNode::class;
+        return TemplateVariable::class;
     }
 
     public function compile(JsCompiler $compiler, Node $node)
     {
-        if (!$node instanceof SpacelessNode) {
+        if (!$node instanceof TemplateVariable) {
             throw new \RuntimeException(
                 sprintf(
                     '$node must be an instanceof of %s, but got "%s".',
-                    SpacelessNode::class,
+                    TemplateVariable::class,
                     get_class($node)
                 )
             );
         }
 
-        $count = $this->count++;
-        $sbName = 'slSb'.($count > 0 ? $count : '');
+        $name = $node->getName($compiler);
 
-        $compiler
-            ->addDebugInfo($node)
-            ->write("var $sbName = sb;\n")
-            ->write("sb = new twig.StringBuffer;")
-            ->subcompile($node->getNode('body'))
-            ->write("$sbName.append(twig.spaceless(sb.toString()));\n")
-            ->write("sb = $sbName;\n")
-        ;
-        $this->count = $count;
+        if ('_self' === $name) {
+            $compiler->raw('this');
+        } else {
+            $compiler
+                ->raw('context[')
+                ->string($name)
+                ->raw(']')
+            ;
+        }
     }
 }

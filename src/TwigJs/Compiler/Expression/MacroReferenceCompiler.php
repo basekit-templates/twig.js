@@ -16,38 +16,43 @@
  * limitations under the License.
  */
 
-namespace TwigJs\Compiler;
+namespace TwigJs\Compiler\Expression;
 
+use Twig\Node\Expression\MacroReferenceExpression;
 use Twig\Node\Node;
-use Twig\Node\SandboxedPrintNode;
 use TwigJs\JsCompiler;
+use TwigJs\TypeCompilerInterface;
 
-class SandboxedPrintCompiler extends PrintCompiler
+class MacroReferenceCompiler implements TypeCompilerInterface
 {
     public function getType()
     {
-        return SandboxedPrintNode::class;
+        return MacroReferenceExpression::class;
     }
 
     public function compile(JsCompiler $compiler, Node $node)
     {
-        if (!$node instanceof SandboxedPrintNode) {
+        if (!$node instanceof MacroReferenceExpression) {
             throw new \RuntimeException(
                 sprintf(
                     '$node must be an instanceof of %s, but got "%s".',
-                    SandboxedPrintNode::class,
+                    MacroReferenceExpression::class,
                     get_class($node)
                 )
             );
         }
 
-        throw new \LogicException('SandboxedPrint is not supported in Javascript templates.');
+        $macroName = $node->getAttribute('name');
+        $template = $node->getNode('template');
+        $arguments = $node->getNode('arguments');
 
-//         $compiler
-//             ->addDebugInfo($this)
-//             ->write('echo $this->env->getExtension(\'sandbox\')->ensureToStringAllowed(')
-//             ->subcompile($this->getNode('expr'))
-//             ->raw(");\n")
-//         ;
+        $compiler->subcompile($template);
+        $compiler->raw('.');
+        $compiler->raw($macroName);
+        $compiler->raw('.apply(');
+        $compiler->subcompile($template);
+        $compiler->raw(', ');
+        $compiler->subcompile($arguments);
+        $compiler->raw(')');
     }
 }

@@ -42,6 +42,23 @@ goog.UID_PROPERTY_ = 'twig_ui_' +
 twig.StringBuffer = goog.string.StringBuffer;
 
 /**
+ * Override append to convert null/undefined to empty string, matching PHP
+ * Twig behaviour where {{ null }} outputs nothing.
+ *
+ * @override
+ */
+twig.StringBuffer.prototype.append = function(a, b, c) {
+	if (null == a) { a = ''; }
+	this.b += a;
+	if (null != b) {
+		for (var i = 1; i < arguments.length; i++) {
+			this.b += (null == arguments[i] ? '' : arguments[i]);
+		}
+	}
+	return this;
+};
+
+/**
  * Whether the given value is considered empty.
  * 
  * @param {*} value

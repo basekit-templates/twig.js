@@ -149,7 +149,7 @@ twig.Environment.prototype.test = function(name, arg1, var_args) {
  * @return {string}
  */
 twig.Environment.prototype.escape = function(value, opt_type, opt_charset, opt_autoescape) {
-    return twig.filter.escape(this, value, opt_type, opt_charset, opt_autoescape);
+    return twig.filter.escape(value, opt_type, opt_charset, opt_autoescape);
 };
 
 /**

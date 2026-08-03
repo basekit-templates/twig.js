@@ -13,11 +13,12 @@
     "require": {
         "php": ">=7.3",
         "ext-json": "*",
-        "twig/twig": "^2.11"
+        "twig/twig": "^3.7.0"
     },
     "require-dev": {
         "datto/json-rpc-http": "^5.0",
-        "symfony/phpunit-bridge": "^5.2"
+        "symfony/phpunit-bridge": "^5.2",
+        "phpunit/phpunit": "^12"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -33,7 +34,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "2.0-dev"
+            "dev-master": "3.0-dev"
         }
     }
 }

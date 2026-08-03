@@ -7,9 +7,9 @@
         </testsuite>
     </testsuites>
 
-    <filter>
-        <whitelist>
+    <source>
+        <include>
             <directory suffix=".php">./src/TwigJs/</directory>
-        </whitelist>
-    </filter>
+        </include>
+    </source>
 </phpunit>

@@ -16,62 +16,41 @@
  * limitations under the License.
  */
 
-namespace TwigJs\Compiler\Expression;
+namespace TwigJs\Compiler\Expression\Variable;
 
-use Twig\Node\Expression\TestExpression;
+use Twig\Node\Expression\Variable\AssignTemplateVariable;
+use Twig\Node\Expression\Variable\TemplateVariable;
 use Twig\Node\Node;
 use TwigJs\JsCompiler;
 use TwigJs\TypeCompilerInterface;
 
-class TestCompiler implements TypeCompilerInterface
+class AssignTemplateVariableCompiler implements TypeCompilerInterface
 {
     public function getType()
     {
-        return TestExpression::class;
+        return AssignTemplateVariable::class;
     }
 
     public function compile(JsCompiler $compiler, Node $node)
     {
-        if (!$node instanceof TestExpression) {
+        if (!$node instanceof AssignTemplateVariable) {
             throw new \RuntimeException(
                 sprintf(
                     '$node must be an instanceof of %s, but got "%s".',
-                    TestExpression::class,
+                    AssignTemplateVariable::class,
                     get_class($node)
                 )
             );
         }
 
-        $name = $node->getAttribute('name');
-
-        if ($testCompiler = $compiler->getTestCompiler($name)) {
-            $testCompiler->compile($compiler, $node);
-
-            return;
-        }
-
-        $subNode = $node->getNode('node');
+        /** @var TemplateVariable $var */
+        $var = $node->getNode('var');
+        $name = $var->getName($compiler);
 
         $compiler
-            ->raw('this.env_.test(')
+            ->raw('context[')
             ->string($name)
-            ->raw(', ')
-            ->subcompile($subNode)
+            ->raw(']')
         ;
-
-        if ($node->hasNode('arguments')) {
-            $compiler->raw(', ');
-
-            $max = count($node->getNode('arguments')) - 1;
-            foreach ($node->getNode('arguments') as $i => $arg) {
-                $compiler->subcompile($arg);
-
-                if ($i != $max) {
-                    $compiler->raw(', ');
-                }
-            }
-        }
-
-        $compiler->raw(')');
     }
 }

@@ -54,11 +54,11 @@ twig.filter.def = function(value, opt_default) {
 
 /**
  * @export
- * @param {twig.Environment} env
  * @param {string} str
  * @return {string}
  */
-twig.filter.capitalize = function(env, str) {
+twig.filter.capitalize = function(str) {
+	str = goog.string.makeSafe(str);
 	return str.charAt(0).toUpperCase() + str.substring(1);
 };
 
@@ -71,7 +71,7 @@ twig.filter.capitalize = function(env, str) {
  * @param {boolean=} opt_autoescape defaults to false
  * @return {string}
  */
-twig.filter.escape = function(env, value, opt_type, opt_charset, opt_autoescape) {
+twig.filter.escape = function(value, opt_type, opt_charset, opt_autoescape) {
 	if (opt_autoescape && value instanceof twig.Markup) {
 		return value.toString();
 	}
@@ -102,11 +102,10 @@ twig.filter.escape.Type = {
 
 /**
  * @export
- * @param {twig.Environment} env
  * @param {goog.array.ArrayLike|Object|string} value
  * @return {number}
  */
-twig.filter.length = function(env, value) {
+twig.filter.length = function(value) {
 	return twig.count(value);
 };
 
@@ -136,21 +135,19 @@ twig.filter.join = function(value, opt_glue) {
 twig.filter.keys = goog.object.getKeys;
 
 /**
- * @param {twig.Environment} env
  * @param {string} value
  * @return {string}
  */
-twig.filter.upper = function(env, value) {
-	return value.toUpperCase();
+twig.filter.upper = function(value) {
+	return goog.string.makeSafe(value).toUpperCase();
 };
 
 /**
- * @param {twig.Environment} env
  * @param {string} value
  * @return {string}
  */
-twig.filter.lower = function(env, value) {
-	return value.toLowerCase();
+twig.filter.lower = function(value) {
+	return goog.string.makeSafe(value).toLowerCase();
 };
 
 /**
@@ -163,11 +160,10 @@ twig.filter.nl2br = function(str) {
 };
 
 /**
- * @param {twig.Environment} env
- * @param {string} value
- * @return {string}
+ * @param {goog.array.ArrayLike|Object|string} value
+ * @return {*}
  */
-twig.filter.first = function(env, value) {
+twig.filter.first = function(value) {
 	if (goog.isArray(value)) {
 		return value[0];
 	} else if (goog.isObject(value)) {
@@ -179,11 +175,10 @@ twig.filter.first = function(env, value) {
 };
 
 /**
- * @param {twig.Environment} env
  * @param {goog.array.ArrayLike|Object|string} value
- * @return {string}
+ * @return {*}
  */
-twig.filter.last = function(env, value) {
+twig.filter.last = function(value) {
 	if (goog.isArray(value)) {
 		return value[(value.length - 1)];
 	} else if (goog.isObject(value)) {
@@ -205,12 +200,11 @@ twig.filter.abs = function(n) {
 };
 
 /**
- * @param {twig.Environment} env
  * @param {string} value
  * @return {string}
  */
-twig.filter.title = function(env, value) {
-	return value.split(" ").map(function(word) {
+twig.filter.title = function(value) {
+	return goog.string.makeSafe(value).split(" ").map(function(word) {
 		return word.charAt(0).toUpperCase() + word.substr(1).toLowerCase();
 	}).join(" ");
 };
@@ -240,11 +234,10 @@ twig.filter.json_encode = function(value) {
 };
 
 /**
- * @param {twig.Environment} env
  * @param {goog.array.ArrayLike|Object|string} value
  * @return {goog.array.ArrayLike|Object|string}
  */
-twig.filter.reverse = function(env, value) {
+twig.filter.reverse = function(value) {
 	if (goog.isArray(value)) {
 		return value.reverse();
 	} else if (goog.isObject(value)) {

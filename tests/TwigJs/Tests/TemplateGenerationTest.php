@@ -2,6 +2,7 @@
 
 namespace TwigJs\Tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -14,6 +15,7 @@ class TemplateGenerationTest extends TestCase
     /**
      * @dataProvider getGenerationTests
      */
+    #[DataProvider('getGenerationTests')]
     public function testGenerate($inputFile, $outputFile)
     {
         $env = new Environment(new FilesystemLoader(__DIR__.'/Fixture/templates', getcwd()));
@@ -33,7 +35,7 @@ class TemplateGenerationTest extends TestCase
         );
     }
 
-    public function getGenerationTests()
+    public static function getGenerationTests()
     {
         $tests = array();
         $files = new \RecursiveDirectoryIterator(

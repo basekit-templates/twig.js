@@ -26,7 +26,10 @@ class AmdCompiler extends ModuleCompiler implements TypeCompilerInterface
         $parts = explode('.', $functionName);
         array_pop($parts);
 
-        $filename = $node->getAttribute('filename');
+        $filename = $node->getSourceContext()->getPath();
+        if (empty($filename)) {
+            $filename = $node->getSourceContext()->getName();
+        }
         if (!empty($filename) && false !== strpos($filename, DIRECTORY_SEPARATOR)) {
             $parts = explode(DIRECTORY_SEPARATOR, realpath($filename));
             $filename = implode(DIRECTORY_SEPARATOR, array_splice($parts, -4));

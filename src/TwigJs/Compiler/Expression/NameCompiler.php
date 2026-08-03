@@ -44,13 +44,13 @@ class NameCompiler implements TypeCompilerInterface
 
         $name = $node->getAttribute('name');
 
-        if ($node->getAttribute('is_defined_test')) {
-            if ($node->isSpecial()) {
+        if ($node->isDefinedTestEnabled()) {
+            if (isset(['_self' => true, '_context' => true, '_charset' => true][$name])) {
                 $compiler->repr(true);
             } else {
                 $compiler->raw('(')->repr($name)->raw(' in context)');
             }
-        } elseif ($node->isSpecial()) {
+        } elseif (isset(['_self' => true, '_context' => true, '_charset' => true][$name])) {
             static $specialVars = array(
                 '_self' => 'this',
                 '_context' => 'context',

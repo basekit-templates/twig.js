@@ -44,7 +44,7 @@ class FunctionCompiler implements TypeCompilerInterface
         }
 
         $function = $compiler->getEnvironment()->getFunction($node->getAttribute('name'));
-        if (false === $function) {
+        if (null === $function) {
             throw new SyntaxError(
                 sprintf(
                     'The function "%s" does not exist',
